@@ -23,7 +23,16 @@
   become: yes
 
 - name: Use Docker to bring up the image splunk/splunk:latest
-  ansible.builtin.shell: docker run -d --name splcontainer -p 8000:8000 splunk/splunk:latest no-provision
+  block:
+    - name: Bring up the image splunk/splunk:latest
+      ansible.builtin.shell: docker run -d --name splcontainer -p 8000:8000 docker.io/splunk/splunk:latest no-provision
+  rescue:
+    - name: Stop existing container
+      ansible.builtin.command: docker stop splcontainer
+    - name: Remove existing container
+      ansible.builtin.command: docker rm splcontainer
+    - name: Bring up the image splunk/splunk:latest
+      ansible.builtin.shell: docker run -d --name splcontainer -p 8000:8000 docker.io/splunk/splunk:latest no-provision
 
 - name: Copy template over to docker container
   ansible.builtin.shell: 
