@@ -1,0 +1,11 @@
+# https://github.com/splunk/splunk-ansible/tree/master
+---
+# tasks file for role-splunkuf
+- name: Pre-deploy tasks
+  include_tasks: pre-deploy.yml
+
+- name: Execute playbook
+  ansible.builtin.shell: docker exec -it splcontainer bash -c 'cd /tmp/splunk-ansible; ansible-playbook --inventory localhost, --connection local site.yml --extra-vars "@default.yml"'
+
+- name: Post-deploy tasks
+  include_tasks: post-deploy.yml

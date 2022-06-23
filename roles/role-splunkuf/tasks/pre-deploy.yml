@@ -1,0 +1,63 @@
+# https://splunk.github.io/splunk-ansible/
+#
+---
+- name: Set default Python interpreter
+  ansible.builtin.set_fact:
+    ansible_python_interpreter: "{{ ansible_python_interpreter }}"
+
+- name: Install required system utilities and PyPI packages
+  ansible.builtin.dnf:
+    name:
+      - rsync
+      - tar
+      - ps
+      - wget
+      - net-tools
+      - curl
+      - sudo
+      - ping
+      - bind-utils
+      - ansible
+      - python2-pip
+      - python2-requests
+  become: yes
+
+- name: Use Docker to bring up the image splunk/splunk:latest
+  ansible.builtin.shell: docker run -d --name splcontainer -p 8000:8000 splunk/splunk:latest no-provision
+
+- name: Generate all variables necessary to setup Splunk Enterprise
+  ansible.builtin.shell: docker run -it splunk/splunk:latest create-defaults > default.yml
+
+- name: Define a splunk.role key variable in default.yml
+  ansible.builtin.lineinfile:
+    path: default.yml
+    regexp: '^role: '
+    line: "{{ splunk.role }}"
+
+- name: Define a splunk.build_location key variable in default.yml
+  ansible.builtin.lineinfile:
+    path: default.yml
+    regexp: '^build_location: '
+    line: "{{ splunk.build_location }}"
+
+- name: Define a splunk.password key variable in default.yml
+  ansible.builtin.lineinfile:
+    path: default.yml
+    regexp: '^password: '
+    line: "{{ splunk.password }}"
+
+- name: Create /tmp/splunk-ansible directory
+  ansible.builtin.file:
+    path: /tmp/splunk-ansible
+    state: directory
+    mode: '0755'
+
+- name: Download Ansible project zip file
+  ansible.builtin.get_url:
+    url: https://github.com/splunk/splunk-ansible/archive/refs/heads/master.zip
+    dest: /tmp/splunk-ansible
+
+- name: Unpack ansible-splunk archive
+  ansible.builtin.unarchive:
+    src: /tmp/splunk-ansible/master.zip
+    dest: /tmp/splunk-ansible
