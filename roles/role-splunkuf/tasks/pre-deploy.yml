@@ -10,12 +10,12 @@
     name:
       - rsync
       - tar
-      - ps
+      - procps
       - wget
       - net-tools
       - curl
       - sudo
-      - ping
+      - iputils
       - bind-utils
       - ansible
       - python2-pip
