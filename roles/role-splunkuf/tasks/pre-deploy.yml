@@ -34,9 +34,6 @@
     - name: Bring up the image splunk/splunk:latest
       ansible.builtin.shell: docker run -d --name splcontainer -p 8000:8000 docker.io/splunk/splunk:latest no-provision
 
-- name: Copy template over to docker container
-  ansible.builtin.shell: 
-
 - name: Run a simple command (command)
   community.docker.docker_container_exec:
     container: splcontainer
