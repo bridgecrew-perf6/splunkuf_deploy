@@ -1,0 +1,5 @@
+---
+- name: Deploy Splunk Universal Forwarder
+  hosts: localhost
+  roles:
+    - role-splunkuf
